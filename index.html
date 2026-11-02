@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Shape Your Mind: A Geometric Affirmation Game</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Baloo+2:wght@600;800&family=EB+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <style>
 :root{--cream:#FAF4E8;--pink:#F78FB3;--blue:#6FB1F2;--yellow:#FFCF4D;--purple:#B58AE8;--green:#5BBF78;--peach:#E9A877;--ink:#7A4B2A;--bg:#555;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -74,6 +74,22 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 .stg{border:0;border-radius:18px;padding:8px 6px;background:#fff;color:var(--ink);font-family:'Baloo 2';font-weight:800;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);border:3px solid var(--yellow)}
 .stg small{display:block;font-family:'Fredoka';font-weight:500;font-size:11px}
 .stg.done{border-color:var(--green);background:#EAF8EE}
+
+#card,#quotes{background-color:#F3F0E8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .38 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");color:#111}
+#card{justify-content:flex-start;overflow-y:auto;padding:46px 20px 24px}
+#card>:first-child{margin-top:auto}#card>:last-child{margin-bottom:auto}
+#msg.qt{font-family:'EB Garamond',Georgia,serif;font-weight:500;color:#111;line-height:1.85;margin:6px 0;max-width:330px;-webkit-text-stroke:0;text-shadow:none;text-align:center;animation:pop .6s both}
+.hl{background:linear-gradient(176deg,transparent 12%,#EFD76A 12%,#F3DC76 88%,transparent 88%);padding:3px 10px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.subq{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:#6b5c1e;margin:0;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+#card #ref{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:19px;color:#222;margin:8px 0 0;font-weight:500}
+#quotes{justify-content:flex-start;padding:40px 14px 16px;gap:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.tab{border:2px solid var(--yellow);background:#fff;color:var(--ink);font-family:'Fredoka';font-weight:600;font-size:12px;border-radius:16px;padding:3px 10px;cursor:pointer}
+.tab.on{background:var(--yellow)}
+.qlist{flex:1;min-height:0;overflow-y:auto;width:100%;display:flex;flex-direction:column;gap:16px;padding:8px 4px;touch-action:pan-y}
+.qi{text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:17px;line-height:1.8;color:#111}
+.qa{font-style:italic;font-size:15px;margin-top:2px;color:#333}
+#home .btn.alt{margin-top:0}
 </style>
 </head>
 <body>
@@ -91,6 +107,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
   <h1 id="title" class="puffy"><span class="l1">SHAPE</span><span class="l2"><b>YOUR</b><i>MIND</i></span></h1>
   <p class="tip">Drag each shape into its matching space. Every try brings you a kind word.</p>
   <button class="btn" id="play">PLAY</button>
+  <button class="btn alt" id="openQ">QUOTES</button>
 </section>
 
 <section id="game" class="screen">
@@ -116,11 +133,17 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
   <button class="btn alt" id="backDiff">BACK</button>
 </section>
 
+<section id="quotes" class="screen">
+  <p class="subq">Word of Affirmation Quotes</p>
+  <div class="tabs"><button class="tab on" data-k="all">All</button><button class="tab" data-k="v">Bible verses</button><button class="tab" data-k="w">Words of wisdom</button><button class="tab" data-k="a">Affirmations</button></div>
+  <div class="qlist" id="qlist"></div>
+  <button class="btn alt" id="backQ">BACK</button>
+</section>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <section id="card" class="screen overlay">
-  <p id="sub" class="puffy" style="-webkit-text-stroke:0;font-size:22px;color:var(--green)"></p>
-  <h2 id="msg" class="puffy"></h2>
+  <p id="sub" class="subq"></p>
+  <h2 id="msg" class="qt"></h2>
   <p id="ref"></p>
   <button class="btn" id="next">NEXT</button>
 </section>
@@ -157,6 +180,11 @@ const DES=[
 const DIF={easy:{label:"EASY",col:"#5BBF78",extra:8,undo:3,step:90},medium:{label:"MEDIUM",col:"#F7B23B",extra:4,undo:2,step:90},hard:{label:"HARD",col:"#F0709F",extra:2,undo:1,step:45}};
 const QUOTES=["Dream big. Work hard. Stay focused.","You are absolutely capable of creating a life you can’t stop thinking about.","Don’t forget to be grateful for what you do have.","Never lose your sense of wonder.","Focus on the goal, not the struggle.","Faith over fear.","Let go of things that you can’t control.","Don’t rush the process. Good things take time.","With God you can overcome and achieve everything and anything.","Just because it’s hard doesn’t mean it’s impossible. You can do it.","Be the best version of you.","Wherever life plants you, bloom with grace.","May all your delulu come trululu.","What if it all works out?","You can do great things.","Trust your visions.","Don’t let yesterday take up too much of today."];
 const WIN=QUOTES.map(t=>[t,""]);
+const VERSES=[["Jeremiah 29:11","For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope."],["Deuteronomy 31:6","Be strong and courageous. Do not fear or be in dread of them, for it is the Lord your God who goes with you. He will not leave you or forsake you."],["Proverbs 3:5-6","Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths."],["Lamentations 3:22-23","The steadfast love of the Lord never ceases; his mercies never come to an end; they are new every morning; great is your faithfulness."],["Psalm 34:8","Oh, taste and see that the Lord is good! Blessed is the man who takes refuge in him!"],["Isaiah 41:10","Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand."],["2 Corinthians 4:16-18","So we do not lose heart. Though our outer self is wasting away, our inner self is being renewed day by day. For this light momentary affliction is preparing for us an eternal weight of glory beyond all comparison, as we look not to the things that are seen but to the things that are unseen. For the things that are seen are transient, but the things that are unseen are eternal."]];
+const WISE=[["Ralph Waldo Emerson","When it is dark enough, you can see the stars."],["Ivy Baker Priest","The world is round and the place which may seem like the end may also be only the beginning."],["Edmund Hillary","It is not the mountain we conquer but ourselves."],["Agatha Christie","I have sometimes been wildly, despairingly, acutely miserable, but through it all I still know quite certainly that just to be alive is a grand thing."],["Rainer Maria Rilke","Perhaps everything terrible is in its deepest being something helpless that wants help from us."],["Mary Anne Radmacher","Courage doesn’t always roar. Sometimes courage is the quiet voice at the end of the day saying, “I will try again tomorrow.”"],["Mahatma Gandhi","Strength does not come from physical capacity. It comes from an indomitable will."],["Albert Camus","In the depth of winter, I finally learned that within me there lay an invincible summer."],["Wayne Dyer","Be miserable. Or motivate yourself. Whatever has to be done, it’s always your choice."],["Ann Landers","Some people believe holding on and hanging in there are signs of great strength. However, there are times when it takes much more strength to know when to let go and then do it."],["Oprah","Where there is no struggle, there is no strength."],["Friedrich Nietzsche","That which does not kill us makes us stronger."],["Joel Osteen","Make up your mind that no matter what comes your way, no matter how difficult, no matter how unfair, you will do more than simply survive. You will thrive in spite of it."],["Hal Lindsey","Man can live about forty days without food, about three days without water, about eight minutes without air, but only for one second without hope."],["Muhammad Ali","Inside of a ring or out, ain’t nothing wrong with going down. It’s staying down that’s wrong."]];
+const STAGEQ=[...VERSES.map(([a,t])=>({t,a})),...WISE.map(([a,t])=>({t,a}))];
+let bag=[];function nextQ(){if(!bag.length)bag=STAGEQ.map((_,i)=>i).sort(()=>Math.random()-.5);return STAGEQ[bag.pop()]}
+
 const OK=["Dream big. Work hard. Stay focused.","Focus on the goal, not the struggle.","Be the best version of you.","You can do great things."];
 const NO=["Don’t rush the process. Good things take time.","Just because it’s hard doesn’t mean it’s impossible. You can do it.","Focus on the goal, not the struggle.","Faith over fear.","What if it all works out?"];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -242,12 +270,26 @@ function undo(){
   if(h.ok){slots[h.g._j].done=false;left++;h.g.classList.remove("lock");h.g.style.pointerEvents="";h.g._r=h.r;h.g.classList.add("snap");home(h.g)}
   toast("Undone. Take your time.","");updateBar()}
 function card(sub,col,m,ref,btn){
-  $("#sub").textContent=sub;$("#sub").style.color=col;$("#msg").textContent=m;$("#msg").style.color=pick(COLS);
-  $("#msg").style.fontSize=m.length>45?"28px":m.length>25?"34px":"44px";$("#ref").textContent=ref;$("#next").textContent=btn;show("#card")}
-function win(){DONE[dif][st]=1;mode="win";const m=pick(WIN);
-  card("Stage "+(st+1)+" complete!","var(--green)",m[0],m[1],st<2?"NEXT STAGE":"ALL STAGES");chime(990)}
+  $("#sub").textContent=sub;const n=m.length;
+  $("#msg").innerHTML='<span class="hl"></span>';$("#msg").firstChild.textContent=m;
+  $("#msg").style.fontSize=(n>260?15:n>160?18:n>90?21:n>50?26:30)+"px";
+  $("#ref").textContent=ref?"~ "+ref:"";$("#next").textContent=btn;show("#card");$("#card").scrollTop=0}
+function win(){DONE[dif][st]=1;mode="win";const q=nextQ();
+  card("Stage "+(st+1)+" complete!","",q.t,q.a,st<2?"NEXT STAGE":"ALL STAGES");chime(990)}
+function showQuotes(k){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.k===k));
+  const all=[...VERSES.map(([a,t])=>({t,a,k:"v"})),...WISE.map(([a,t])=>({t,a,k:"w"})),...QUOTES.map(t=>({t,a:"",k:"a"}))];
+  $("#qlist").innerHTML="";
+  all.filter(q=>k==="all"||q.k===k).forEach(q=>{const d=document.createElement("div");d.className="qi";
+    const h=document.createElement("span");h.className="hl";h.textContent=q.t;d.append(h);
+    if(q.a){const z=document.createElement("div");z.className="qa";z.textContent="~ "+q.a;d.append(z)}
+    $("#qlist").append(d)});
+  $("#qlist").scrollTop=0;show("#quotes")}
 function lose(){mode="lose";card("Out of moves","var(--pink)",pick(NO),"","TRY AGAIN");chime(220)}
 $("#play").onclick=()=>show("#diff");
+$("#openQ").onclick=()=>showQuotes("all");
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showQuotes(t.dataset.k));
+$("#backQ").onclick=()=>show("#home");
 document.querySelectorAll(".dcard").forEach(b=>b.onclick=()=>{dif=b.dataset.d;showStages()});
 $("#grid").onclick=e=>{const b=e.target.closest(".stg");if(!b)return;st=+b.dataset.i;show("#game");build()};
 $("#next").onclick=()=>{if(mode==="lose"){show("#game");build()}else if(st<2){st++;show("#game");build()}else showStages()};
